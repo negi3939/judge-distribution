@@ -13,6 +13,7 @@ class Camera{
 		Camera(int c_n);
 		~Camera();
 		int read();
+		int read(std::string &imname);
 		virtual void show();
 		int kbhit();
 };
