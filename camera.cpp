@@ -17,7 +17,7 @@ Camera::Camera(){
 }
 
 Camera::Camera(int c_n){
-	if(c_n>=0){
+	if(c_n>=0){//負の番号を指定するとcapをnewしない
 		cap = new cv::VideoCapture(c_n);//camera open
 		if(!cap->isOpened()){
 			std::cout << "open fail" << std::endl;
@@ -67,12 +67,12 @@ Camera::~Camera(){
 	cv::destroyAllWindows();
 }
 
-#if 1
+#if 0
 int main(int argh, char* argv[]){
 	Camera *cam;
 	cam = new Camera(-1);//-1は画象読み込み，0以上でカメラ番号
 	std::string imname = "image/pizza_0.jpeg";
-	std::cout << cam->read(imname) << std::endl;
+	cam->read(imname);
 	while(1){
 		cam->show();
 		if(cam->kbhit()){
