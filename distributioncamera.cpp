@@ -9,7 +9,8 @@
 #include "camera.h"
 
 typedef struct{
-	int size;
+	int avsize;
+	int matsize;
 } objectfeature;
 
 typedef struct{
@@ -39,15 +40,15 @@ distributionCamera::distributionCamera(int c_n) : Camera(c_n){init();}
 
 void distributionCamera::init(){
 	gpnum = 0;
-	centerx = 650;
+	centerx = 580;
 	centery = 500;
-	ranger = 400;
+	ranger = 370;
 }
 
 
 void distributionCamera::filtering(objectfeature ob){
 	cv::Mat bufm;
-	cvtColor(frame,editimag,CV_BGR2GRAY);
+	cvtColor(diff,editimag,CV_BGR2GRAY);
 	cv::threshold(editimag, editimag, 40, 255, cv::THRESH_BINARY);//二値化
 	retimag = cv::Mat::zeros(editimag.rows,editimag.cols,cv::THRESH_BINARY);//黒背景
 	retimag.copyTo(bufm);
@@ -60,30 +61,63 @@ void distributionCamera::filtering(objectfeature ob){
 			}
 		}
 	}
-	bufm.copyTo(editimag);
+	int avsize = 21;
+	frame.copyTo(retimag);
+	int val;
+	for(int ii = avsize/2; ii<editimag.rows-avsize/2+1;ii++){
+		for(int jj = avsize/2;jj<editimag.cols-avsize/2+1;jj++){
+			val = 0;
+			for(int iii = ii-avsize/2;iii< ii + avsize/2+1;iii++){
+				for(int jjj = jj-avsize/2;jjj< jj + avsize/2+1;jjj++){
+					val += bufm.data[iii * bufm.step + jjj];
+				}				
+			}
+			val = val/avsize/avsize;//avsize*avsizeの領域の平均
+			if(val>40){
+				val = 255;
+			}else{
+				val = 0;
+			}
+			if(((ii-centery)*(ii-centery)+(jj-centerx)*(jj-centerx))<ranger*ranger){
+				editimag.data[ii * editimag.step + jj] = val;
+				retimag.data[ii * retimag.step + jj*retimag.channels() + 2] = val;
+			}else{
+				editimag.data[ii * editimag.step + jj] = 0;
+			}
+		}
+	}
 }
 
 void distributionCamera::judge(objectfeature ob){
-	int val;
-	int avsize = 101;
+	double val;
+	gpnum = 0;
+	int avsize = 81;
 	for(int ii = avsize/2; ii<editimag.rows-avsize/2+1;ii=ii + avsize){
 		for(int jj = avsize/2;jj<editimag.cols-avsize/2+1;jj = jj + avsize){
 			val = 0;
 			for(int iii = ii-avsize/2;iii< ii + avsize/2+1;iii++){
 				for(int jjj = jj-avsize/2;jjj< jj + avsize/2+1;jjj++){
 					val += editimag.data[iii * editimag.step + jjj];
-				}				
+				}			
 			}
-			val = val/avsize/avsize;
+			val = val/avsize/avsize;//avsize*avsizeの領域の平均
 			if(val<40){
 				val = 255;
+				if(((ii-centery)*(ii-centery)+(jj-centerx)*(jj-centerx))<ranger*ranger){
+					gpnum++;
+				}
 			}else{
 				val = 0;
 			}
 			for(int iii = ii-avsize/2;iii< ii + avsize/2+1;iii++){
 				for(int jjj = jj-avsize/2;jjj< jj + avsize/2+1;jjj++){
 					if(((iii-centery)*(iii-centery)+(jjj-centerx)*(jjj-centerx))<ranger*ranger){
-						editimag.data[iii * editimag.step + jjj] = val;
+						editimag.data[iii * editimag.step + jjj] = (int)val;
+						if(val>=255){
+							retimag.data[iii * retimag.step + jjj*retimag.channels() + 0] = 0;
+							retimag.data[iii * retimag.step + jjj*retimag.channels() + 1] = val;
+							retimag.data[iii * retimag.step + jjj*retimag.channels() + 2] = 0;
+						}
 					}else{
 						editimag.data[iii * editimag.step + jjj] = 0;
 					}
@@ -91,7 +125,7 @@ void distributionCamera::judge(objectfeature ob){
 			}
 		}
 	}
-	editimag.copyTo(retimag);
+	//editimag.copyTo(retimag);
 	gp = new point[gpnum];
 
 }
@@ -113,9 +147,10 @@ int main(int argh, char* argv[]){
 	//Camera *cam;
 	//cam = new Camera(-1);//-1は画象読み込み，0以上でカメラ番号
 	std::string imname1 = "image/pizza_0_0.jpg";
-	std::string imname2 = "image/pizza_0_2.jpg";
+	std::string imname2 = "image/pizza_0_1.jpg";
 	objectfeature obf;
-	obf.size = 1000;
+	obf.avsize = 21;
+	obf.matsize = 61;
 	cam->read(imname1,imname2);//差分入力
 	cam->filtering(obf);
 	cam->judge(obf);

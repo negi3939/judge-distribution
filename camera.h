@@ -6,7 +6,7 @@ class Camera{
 	private:
 	protected:
 		cv::VideoCapture *cap;
-		cv::Mat frame;	
+		cv::Mat frame,diff;	
 	public:
 		Camera();//カメラ0番でopen
 		Camera(int c_n);//カメラc_n番でopen カメラ使わない場合は負の引数

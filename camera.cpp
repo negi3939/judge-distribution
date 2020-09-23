@@ -44,7 +44,8 @@ int Camera::read(std::string &imname1,std::string &imname2){
 	buf2 = cv::imread(imname2,ret);
 	cv::resize(buf1, buf1, cv::Size(1200, 1200));//画像の大きさを統一
 	cv::resize(buf2, buf2, cv::Size(1200, 1200));//画像の大きさを統一
-	cv::absdiff(buf1,buf2,frame);//差分を取得
+	buf2.copyTo(frame);//imname2をorgとする
+	cv::absdiff(buf1,buf2,diff);//差分を取得
 	return ret;
 }
 
@@ -74,7 +75,7 @@ int Camera::kbhit(){//キーボード割り込み入力判定
 }
 
 void Camera::write(){
-	
+
 }
 
 Camera::~Camera(){
