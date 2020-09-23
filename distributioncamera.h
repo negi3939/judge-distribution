@@ -26,6 +26,7 @@ class distributionCamera : public Camera{
     public:
         distributionCamera();
         distributionCamera(int c_n);
+        distributionCamera(int c_n,int c_x,int c_y,int r_r);
 		void init();
 		void filtering(objectfeature ob);
 		void judge(objectfeature ob,std::vector<point> &gopoint);

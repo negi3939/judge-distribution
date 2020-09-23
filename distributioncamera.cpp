@@ -9,22 +9,14 @@
 
 #include "distributioncamera.h"
 
+objectfeature::objectfeature(){}
+objectfeature::objectfeature(int av,int mat,double th){avsize = av;matsize = mat;thrval = th;}
+
 distributionCamera::distributionCamera() : Camera(){init();}
 distributionCamera::distributionCamera(int c_n) : Camera(c_n){init();}
+distributionCamera::distributionCamera(int c_n,int c_x,int c_y,int r_r){centerx = c_x;centery = c_y;ranger = r_r;}
 
-objectfeature::objectfeature(){}
-objectfeature::objectfeature(int av,int mat,double th){
-	avsize = av;
-	matsize = mat;
-	thrval = th;
-}
-
-void distributionCamera::init(){
-	centerx = 580;
-	centery = 500;
-	ranger = 370;
-}
-
+void distributionCamera::init(){centerx = 580;centery = 500;ranger = 370;}
 
 void distributionCamera::filtering(objectfeature ob){
 	cv::Mat bufm;
