@@ -7,37 +7,7 @@
 #include <unistd.h>
 #include "opencv2/opencv.hpp"
 
-#include "camera.h"
-
-class objectfeature{
-	public:
-		objectfeature();
-		objectfeature(int av,int mat,double th);
-		int avsize;
-		int matsize;
-		double thrval;
-};
-
-typedef struct{
-	double x;
-	double y;
-} point;
-
-
-class distributionCamera : public Camera{
-    protected:
-		cv::Mat editimag,retimag;
-		 std::vector<point> gp;
-		int centerx,centery,ranger;
-    public:
-        distributionCamera();
-        distributionCamera(int c_n);
-		void init();
-		void filtering(objectfeature ob);
-		void judge(objectfeature ob,std::vector<point> &gopoint);
-		void show() override;//表示
-		void write() override;//保存
-};
+#include "distributioncamera.h"
 
 distributionCamera::distributionCamera() : Camera(){init();}
 distributionCamera::distributionCamera(int c_n) : Camera(c_n){init();}
@@ -151,7 +121,7 @@ void distributionCamera::write(){
 }
 
 
-#if 1
+#if 0
 int main(int argh, char* argv[]){
 	distributionCamera *cam;
 	cam = new distributionCamera(-1);//-1は画象読み込み，0以上でカメラ番号
@@ -191,6 +161,8 @@ int main(int argh, char* argv[]){
 	for(int ii=0;ii<gop.size();ii++){
 		std::cout << ii << " : " << " x: "<< gop.at(ii).x  << " y: "<< gop.at(ii).y  << std::endl;//取得した散布すべき座標の表示
 	}
+	cam->write();
+
 	while(1){
 		cam->show();//表示
 		if(cam->kbhit()){//キーボードを入力すると表示停止

@@ -49,7 +49,6 @@ int Camera::read(std::string &imname1,std::string &imname2){
 	buf2.copyTo(frame);//imname2をorgとする
 	cv::absdiff(buf1,buf2,diff);//差分を取得
 	setoutpname(imname2);//出力ファイル名の設定
-	exit(0);
 	return ret;
 }
 

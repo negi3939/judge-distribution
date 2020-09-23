@@ -11,18 +11,22 @@
 ifdef target
 	TARGET=$(target)
 else
-	TARGET=distrib
+	TARGET=main
+	#distrib
 	#camera
 endif
 
 ifeq ($(TARGET),camera)
 	SOURCE_MAIN = camera.cpp
-#	SOURCE_SUB = serial.cpp
 endif
 
 ifeq ($(TARGET),distrib)
 	SOURCE_MAIN = distributioncamera.cpp
 	SOURCE_SUB = camera.cpp
+endif
+ifeq ($(TARGET),main)
+	SOURCE_MAIN = distributionMain.cpp 
+	SOURCE_SUB = camera.cpp distributioncamera.cpp
 endif
 
 ifdef argv
