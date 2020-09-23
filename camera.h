@@ -14,6 +14,7 @@ class Camera{
 		~Camera();
 		int read();
 		int read(std::string &imname);
+		int read(std::string &imname1,std::string &imname2);
 		virtual void show();
 		int kbhit();
 };

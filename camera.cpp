@@ -33,6 +33,19 @@ int Camera::read(){
 int Camera::read(std::string &imname){
 	int ret = 1;
 	frame = cv::imread(imname,ret);
+	cv::resize(frame, frame, cv::Size(1200, 1200));
+	return ret;
+}
+
+int Camera::read(std::string &imname1,std::string &imname2){
+	int ret = 1;
+	cv::Mat buf1,buf2;
+	buf1 = cv::imread(imname1,ret);
+	buf2 = cv::imread(imname2,ret);
+	cv::resize(buf1, buf1, cv::Size(1200, 1200));
+	cv::resize(buf2, buf2, cv::Size(1200, 1200));
+	cv::absdiff(buf1,buf2,frame);
+	cv::resize(frame, frame, cv::Size(1200, 1200));
 	return ret;
 }
 
@@ -71,8 +84,9 @@ Camera::~Camera(){
 int main(int argh, char* argv[]){
 	Camera *cam;
 	cam = new Camera(-1);//-1は画象読み込み，0以上でカメラ番号
-	std::string imname = "image/pizza_0.jpeg";
-	cam->read(imname);
+	std::string imname1 = "image/pizza_0_0.jpg";
+	std::string imname2 = "image/pizza_0_2.jpg";
+	cam->read(imname1,imname2);
 	while(1){
 		cam->show();
 		if(cam->kbhit()){

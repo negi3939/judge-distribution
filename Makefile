@@ -11,8 +11,8 @@
 ifdef target
 	TARGET=$(target)
 else
-	TARGET=distrib
-	#camera
+	TARGET=camera
+	#distrib
 
 endif
 
