@@ -37,8 +37,6 @@ void run_show(std::vector<std::string> imagename,int num,objectfeature ob,distri
 	}
 }
 
-
-#if 1
 int main(int argh, char* argv[]){
     distributionCamera *cam;
 	cam = new distributionCamera(-1);//-1は画象読み込み，0以上でカメラ番号
@@ -143,4 +141,3 @@ int main(int argh, char* argv[]){
 	delete cam;
 	return 0;
 }
-#endif
