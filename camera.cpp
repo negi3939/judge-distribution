@@ -28,6 +28,7 @@ Camera::Camera(int c_n){
 
 int Camera::read(){
 	return cap->read(frame);//カメラから取得
+	outpname = "imageout/camaraimage.jpg";
 }
 
 int Camera::read(std::string &imname){
@@ -35,6 +36,7 @@ int Camera::read(std::string &imname){
 	frame = cv::imread(imname,ret);//画像の読み込み
 	cv::resize(frame, frame, cv::Size(1200, 1200));//画像の読み込み
 	return ret;
+	setoutpname(imname);//出力ファイル名の設定
 }
 
 int Camera::read(std::string &imname1,std::string &imname2){
@@ -46,7 +48,35 @@ int Camera::read(std::string &imname1,std::string &imname2){
 	cv::resize(buf2, buf2, cv::Size(1200, 1200));//画像の大きさを統一
 	buf2.copyTo(frame);//imname2をorgとする
 	cv::absdiff(buf1,buf2,diff);//差分を取得
+	setoutpname(imname2);//出力ファイル名の設定
+	exit(0);
 	return ret;
+}
+
+void Camera::setoutpname(std::string &imname){
+	std::string bufst0,bufst1,bufst2;
+	bufst0 =  "imageout/";
+	bufst1 = imname;
+	bufst2 = "_output.jpg";
+	int countst=0,countend=0;
+	for(int ii=0;ii<bufst1.size();ii++){
+		if(bufst1[ii]=='/'){break;}//ディレクトリ名の削除
+		countst++;
+	}
+	for(int ii=0;ii<countst+1;ii++){
+		bufst1.erase(bufst1.begin());
+	}
+	for(int ii=bufst1.size()-1;ii>=0;ii--){
+		if(bufst1[ii]=='.'){break;}//拡張子の削除
+		countend++;
+	}
+	for(int ii=0;ii<countend+1;ii++){
+		bufst1.erase(bufst1.end()-1);
+	}
+	outpname = bufst0;
+	outpname += bufst1;
+	outpname += bufst2;
+	std::cout << outpname << std::endl;
 }
 
 void Camera::show(){
@@ -75,7 +105,7 @@ int Camera::kbhit(){//キーボード割り込み入力判定
 }
 
 void Camera::write(){
-
+	cv::imwrite(outpname,frame);
 }
 
 Camera::~Camera(){

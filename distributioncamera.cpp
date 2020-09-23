@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include <string.h>
 #include <fcntl.h>
 #include <termios.h>
@@ -8,29 +9,32 @@
 
 #include "camera.h"
 
-typedef struct{
-	int avsize;
-	int matsize;
-} objectfeature;
+class objectfeature{
+	public:
+		objectfeature();
+		objectfeature(int av,int mat,double th);
+		int avsize;
+		int matsize;
+		double thrval;
+};
 
 typedef struct{
-	int x;
-	int y;
+	double x;
+	double y;
 } point;
 
 
 class distributionCamera : public Camera{
     protected:
 		cv::Mat editimag,retimag;
-		point *gp;
-		int gpnum;
+		 std::vector<point> gp;
 		int centerx,centery,ranger;
     public:
         distributionCamera();
         distributionCamera(int c_n);
 		void init();
 		void filtering(objectfeature ob);
-		void judge(objectfeature ob);
+		void judge(objectfeature ob,std::vector<point> &gopoint);
 		void show() override;//表示
 		void write() override;//保存
 };
@@ -38,8 +42,14 @@ class distributionCamera : public Camera{
 distributionCamera::distributionCamera() : Camera(){init();}
 distributionCamera::distributionCamera(int c_n) : Camera(c_n){init();}
 
+objectfeature::objectfeature(){}
+objectfeature::objectfeature(int av,int mat,double th){
+	avsize = av;
+	matsize = mat;
+	thrval = th;
+}
+
 void distributionCamera::init(){
-	gpnum = 0;
 	centerx = 580;
 	centery = 500;
 	ranger = 370;
@@ -61,7 +71,7 @@ void distributionCamera::filtering(objectfeature ob){
 			}
 		}
 	}
-	int avsize = 21;
+	int avsize = ob.avsize;
 	frame.copyTo(retimag);
 	int val;
 	for(int ii = avsize/2; ii<editimag.rows-avsize/2+1;ii++){
@@ -73,7 +83,7 @@ void distributionCamera::filtering(objectfeature ob){
 				}				
 			}
 			val = val/avsize/avsize;//avsize*avsizeの領域の平均
-			if(val>40){
+			if(val>ob.thrval){
 				val = 255;
 			}else{
 				val = 0;
@@ -88,10 +98,10 @@ void distributionCamera::filtering(objectfeature ob){
 	}
 }
 
-void distributionCamera::judge(objectfeature ob){
+void distributionCamera::judge(objectfeature ob, std::vector<point> &gopoint){
 	double val;
-	gpnum = 0;
-	int avsize = 81;
+	int avsize = ob.matsize;
+	point xyp;
 	for(int ii = avsize/2; ii<editimag.rows-avsize/2+1;ii=ii + avsize){
 		for(int jj = avsize/2;jj<editimag.cols-avsize/2+1;jj = jj + avsize){
 			val = 0;
@@ -101,10 +111,12 @@ void distributionCamera::judge(objectfeature ob){
 				}			
 			}
 			val = val/avsize/avsize;//avsize*avsizeの領域の平均
-			if(val<40){
+			if(val<ob.thrval){
 				val = 255;
 				if(((ii-centery)*(ii-centery)+(jj-centerx)*(jj-centerx))<ranger*ranger){
-					gpnum++;
+					xyp.x = jj;//x座標の取得
+					xyp.y = ii;//y座標の取得
+					gp.push_back(xyp);//gpのvectorデータに追加
 				}
 			}else{
 				val = 0;
@@ -125,9 +137,7 @@ void distributionCamera::judge(objectfeature ob){
 			}
 		}
 	}
-	//editimag.copyTo(retimag);
-	gp = new point[gpnum];
-
+	gopoint = gp;
 }
 
 void distributionCamera::show(){
@@ -137,23 +147,50 @@ void distributionCamera::show(){
 }
 
 void distributionCamera::write(){
-
+	cv::imwrite(outpname,retimag);
 }
+
 
 #if 1
 int main(int argh, char* argv[]){
 	distributionCamera *cam;
 	cam = new distributionCamera(-1);//-1は画象読み込み，0以上でカメラ番号
-	//Camera *cam;
-	//cam = new Camera(-1);//-1は画象読み込み，0以上でカメラ番号
-	std::string imname1 = "image/pizza_0_0.jpg";
-	std::string imname2 = "image/pizza_0_1.jpg";
-	objectfeature obf;
-	obf.avsize = 21;
-	obf.matsize = 61;
-	cam->read(imname1,imname2);//差分入力
-	cam->filtering(obf);
-	cam->judge(obf);
+	std::string onion[4];
+	onion[0] = "image/pizza_0_0.jpg";//ファイル名で指定
+	onion[1] = "image/pizza_0_1.jpg";
+	onion[2] = "image/pizza_0_2.jpg";
+	onion[3] = "image/pizza_1_0.jpg";
+	std::string cone[5];
+	cone[0] = onion[3];
+	cone[1] = "image/pizza_1_1.jpg";
+	cone[2] = "image/pizza_1_2.jpg";
+	cone[3] = "image/pizza_1_3.jpg";
+	cone[4] = "image/pizza_2_0.jpg";
+	std::string broccoli[6];
+	broccoli[0] = cone[4];
+	broccoli[1] = "image/pizza_2_1.jpg";
+	broccoli[2] = "image/pizza_2_2.jpg";
+	broccoli[3] = "image/pizza_2_3.jpg";
+	broccoli[4] = "image/pizza_2_4.jpg";
+	broccoli[5] = "image/pizza_3_0.jpg";
+	std::string cheese[4];
+	cheese[0] = broccoli[5];
+	cheese[1] = "image/pizza_3_1.jpg";
+	cheese[2] = "image/pizza_3_2.jpg";
+	cheese[3] = "image/pizza_3_3.jpg";
+	cheese[4] = "image/pizza_3_4.jpg";
+	objectfeature obonion(21,121,20);//玉ねぎ用のサイズ
+	objectfeature obcone(21,61,20);//トウモコロシ用のサイズ
+	objectfeature obbroccoli(21,121,20);//ブロッコリー用のサイズ
+	objectfeature obcheese(21,41,20);//チーズ用のサイズ
+	std::vector<point>  gop;//撒くべき場所の座標
+	cam->read(onion[0],onion[1]);//差分入力
+	cam->filtering(obonion);//二値化と平滑化
+	cam->judge(obonion,gop);//エリア内の散布度判定
+	std::cout << onion << "Number of gopoint is " << gop.size() << std::endl;//取得した散布すべき座標点の数
+	for(int ii=0;ii<gop.size();ii++){
+		std::cout << ii << " : " << " x: "<< gop.at(ii).x  << " y: "<< gop.at(ii).y  << std::endl;//取得した散布すべき座標の表示
+	}
 	while(1){
 		cam->show();//表示
 		if(cam->kbhit()){//キーボードを入力すると表示停止
