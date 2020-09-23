@@ -9,8 +9,6 @@
 #include "camera.h"
 
 typedef struct{
-	cv::Scalar c_min;
-	cv::Scalar c_max;
 	int size;
 } objectfeature;
 
@@ -25,15 +23,15 @@ class distributionCamera : public Camera{
 		cv::Mat editimag,retimag;
 		point *gp;
 		int gpnum;
-		int centerx,centery,ramger;
+		int centerx,centery,ranger;
     public:
         distributionCamera();
         distributionCamera(int c_n);
 		void init();
 		void filtering(objectfeature ob);
-		void judge(objectfeature ob,point *p,int &n);
-		void show() override;
-		void write();
+		void judge(objectfeature ob);
+		void show() override;//表示
+		void write() override;//保存
 };
 
 distributionCamera::distributionCamera() : Camera(){init();}
@@ -41,61 +39,59 @@ distributionCamera::distributionCamera(int c_n) : Camera(c_n){init();}
 
 void distributionCamera::init(){
 	gpnum = 0;
-	centerx = 540;
+	centerx = 650;
 	centery = 500;
-	ramger = 400;
+	ranger = 400;
 }
 
 
 void distributionCamera::filtering(objectfeature ob){
-	cv::Mat gray;
-	gpnum = 0;
-	frame.copyTo(retimag);
-	int size = ob.size/10;
-	if(size%2==0){size+=1;}
-	inRange(frame, ob.c_min, ob.c_max, gray);
-	editimag = cv::Mat::zeros(gray.rows, gray.rows, CV_8UC3);;
-	for (int y = size/2; y < editimag.rows - size/2;y = y + size) {
-		for (int x = size/2; x < editimag.cols - size/2 ;x = x + size) {
-			int val = 0;
-			for (int yy = y - size/2; yy <= y + size/2; yy++) {
-				for (int xx = x - size/2; xx <= x + size/2; xx++) {
-					for (int ii = 0;ii < editimag.channels();ii++) { //B,G,R画像ごとに処理する
-						val += gray.data[yy * gray.step + xx * gray.channels() + ii];
-					}
-				}
-			}
-			val = val/size/size/editimag.channels();
-			if(val>35){
-					val  = 0;
+	cv::Mat bufm;
+	cvtColor(frame,editimag,CV_BGR2GRAY);
+	cv::threshold(editimag, editimag, 40, 255, cv::THRESH_BINARY);//二値化
+	retimag = cv::Mat::zeros(editimag.rows,editimag.cols,cv::THRESH_BINARY);//黒背景
+	retimag.copyTo(bufm);
+	for(int ii = 0; ii<bufm.rows;ii++){
+		for(int jj = 0;jj<bufm.cols;jj++){
+			if(((ii-centery)*(ii-centery)+(jj-centerx)*(jj-centerx))<ranger*ranger){
+				bufm.data[ii * bufm.step + jj] = editimag.data[ii * bufm.step + jj];
 			}else{
-					val = 255;
-					gpnum++;
+				bufm.data[ii * bufm.step + jj] = 0;
 			}
-			for (int ii = 0;ii < editimag.channels();ii++)
-				for (int yy = y - size/2; yy <= y + size/2; yy++) {
-					for (int xx = x - size/2; xx <= x + size/2; xx++) {
-						if(((yy-centery)*(yy-centery) + (xx-centerx)*(xx-centerx))>ramger*ramger){
-							editimag.data[yy * editimag.step + xx * editimag.channels() + ii] = 0;	
-						}else{
-							editimag.data[yy * editimag.step + xx * editimag.channels() + ii] = val;
-							if(val==255){
-								if(ii==2){
-									retimag.data[yy * retimag.step + xx * editimag.channels() + ii] = val;
-								}else{
-									retimag.data[yy * retimag.step + xx * editimag.channels() + ii] = 0;
-								}
-							}
-						}
+		}
+	}
+	bufm.copyTo(editimag);
+}
+
+void distributionCamera::judge(objectfeature ob){
+	int val;
+	int avsize = 101;
+	for(int ii = avsize/2; ii<editimag.rows-avsize/2+1;ii=ii + avsize){
+		for(int jj = avsize/2;jj<editimag.cols-avsize/2+1;jj = jj + avsize){
+			val = 0;
+			for(int iii = ii-avsize/2;iii< ii + avsize/2+1;iii++){
+				for(int jjj = jj-avsize/2;jjj< jj + avsize/2+1;jjj++){
+					val += editimag.data[iii * editimag.step + jjj];
+				}				
+			}
+			val = val/avsize/avsize;
+			if(val<40){
+				val = 255;
+			}else{
+				val = 0;
+			}
+			for(int iii = ii-avsize/2;iii< ii + avsize/2+1;iii++){
+				for(int jjj = jj-avsize/2;jjj< jj + avsize/2+1;jjj++){
+					if(((iii-centery)*(iii-centery)+(jjj-centerx)*(jjj-centerx))<ranger*ranger){
+						editimag.data[iii * editimag.step + jjj] = val;
+					}else{
+						editimag.data[iii * editimag.step + jjj] = 0;
 					}
 				}
 			}
 		}
-	std::cout <<" imag row is " << editimag.rows << std::endl;
-	std::cout <<" imag col is " << editimag.cols << std::endl;
-}
-
-void distributionCamera::judge(objectfeature ob,point *p,int &n){
+	}
+	editimag.copyTo(retimag);
 	gp = new point[gpnum];
 
 }
@@ -106,7 +102,7 @@ void distributionCamera::show(){
 	cv::waitKey(1);	
 }
 
-void write(){
+void distributionCamera::write(){
 
 }
 
@@ -116,16 +112,16 @@ int main(int argh, char* argv[]){
 	cam = new distributionCamera(-1);//-1は画象読み込み，0以上でカメラ番号
 	//Camera *cam;
 	//cam = new Camera(-1);//-1は画象読み込み，0以上でカメラ番号
-	std::string imname = "image/pizza_1.jpeg";
+	std::string imname1 = "image/pizza_0_0.jpg";
+	std::string imname2 = "image/pizza_0_2.jpg";
 	objectfeature obf;
-	obf.c_min = cv::Scalar(100,100,100);//B, G, R
-	obf.c_max = cv::Scalar(255,255,255);//B, G, R
 	obf.size = 1000;
-	cam->read(imname);
+	cam->read(imname1,imname2);//差分入力
 	cam->filtering(obf);
+	cam->judge(obf);
 	while(1){
-		cam->show();
-		if(cam->kbhit()){
+		cam->show();//表示
+		if(cam->kbhit()){//キーボードを入力すると表示停止
 			break;
 		}
 	}

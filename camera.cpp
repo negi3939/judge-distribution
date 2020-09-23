@@ -27,13 +27,13 @@ Camera::Camera(int c_n){
 }
 
 int Camera::read(){
-	return cap->read(frame);
+	return cap->read(frame);//カメラから取得
 }
 
 int Camera::read(std::string &imname){
 	int ret = 1;
-	frame = cv::imread(imname,ret);
-	cv::resize(frame, frame, cv::Size(1200, 1200));
+	frame = cv::imread(imname,ret);//画像の読み込み
+	cv::resize(frame, frame, cv::Size(1200, 1200));//画像の読み込み
 	return ret;
 }
 
@@ -42,19 +42,18 @@ int Camera::read(std::string &imname1,std::string &imname2){
 	cv::Mat buf1,buf2;
 	buf1 = cv::imread(imname1,ret);
 	buf2 = cv::imread(imname2,ret);
-	cv::resize(buf1, buf1, cv::Size(1200, 1200));
-	cv::resize(buf2, buf2, cv::Size(1200, 1200));
-	cv::absdiff(buf1,buf2,frame);
-	cv::resize(frame, frame, cv::Size(1200, 1200));
+	cv::resize(buf1, buf1, cv::Size(1200, 1200));//画像の大きさを統一
+	cv::resize(buf2, buf2, cv::Size(1200, 1200));//画像の大きさを統一
+	cv::absdiff(buf1,buf2,frame);//差分を取得
 	return ret;
 }
 
 void Camera::show(){
 	cv::imshow("camera",frame);//表示
-	cv::waitKey(1);
+	cv::waitKey(1);//これがないと表示されない
 }
 
-int Camera::kbhit(){
+int Camera::kbhit(){//キーボード割り込み入力判定
     struct termios oldt, newt;
     int ch;
     int oldf;
@@ -74,7 +73,9 @@ int Camera::kbhit(){
     return 0;
 }
 
-
+void Camera::write(){
+	
+}
 
 Camera::~Camera(){
 	cv::destroyAllWindows();
@@ -86,10 +87,10 @@ int main(int argh, char* argv[]){
 	cam = new Camera(-1);//-1は画象読み込み，0以上でカメラ番号
 	std::string imname1 = "image/pizza_0_0.jpg";
 	std::string imname2 = "image/pizza_0_2.jpg";
-	cam->read(imname1,imname2);
+	cam->read(imname1,imname2);//差分画像
 	while(1){
-		cam->show();
-		if(cam->kbhit()){
+		cam->show();//表示
+		if(cam->kbhit()){//キーボードを入力すると表示停止
 			break;
 		}
 	}
