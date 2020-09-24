@@ -7,4 +7,7 @@
 data/*
 data/*.dat
 data/*.dat~
-imageout/*.*
+imageout/*.jpg
+imageout/*.jpeg
+imageout/*.png
+imageout/*.gif

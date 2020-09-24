@@ -1,5 +1,7 @@
 # カメラ画像から散布物の分布を取得
 画像のファイル名と散布物の情報（色と大きさ）を入力すると，散布不足の領域の座標を返す．
+![pizza_3_2](https://user-images.githubusercontent.com/50578550/94103076-9d788380-fe6e-11ea-8f69-0ef3db9d4be7.jpg)
+![pizza_3_2_output](https://user-images.githubusercontent.com/50578550/94103390-8be3ab80-fe6f-11ea-83c4-d43cf850af7d.jpg)
 
 # class Camera
 カメラあるいは指定したファイルのread,show,writeができる．
@@ -11,7 +13,7 @@ writeするファイル名は入力したファイルのディレクトリ名と
 それぞれの散布物に対し，適切な処理のためにこれらの値を調整する．
 
 # class distriburionCamera
-class Cameraを継承している
+class Cameraを継承している．
 散布対象の領域はコンストラクタで指定できる．
 filtering()で平滑処理と二値化を行っている．差分があったところは赤色に塗りつぶす．
 judge()で各エリアに散布されているかどうかを判別する．散布されていない領域を緑色にする．
