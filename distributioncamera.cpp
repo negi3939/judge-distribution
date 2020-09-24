@@ -9,8 +9,8 @@
 
 #include "distributioncamera.h"
 
-objectfeature::objectfeature(){}
-objectfeature::objectfeature(int av,int mat,double th){avsize = av;matsize = mat;thrval = th;}//コンストラクタで値を設定する
+Objectfeature::Objectfeature(){}
+Objectfeature::Objectfeature(int av,int mat,double th){avsize = av;matsize = mat;thrval = th;}//コンストラクタで値を設定する
 
 distributionCamera::distributionCamera() : Camera(){init();}
 distributionCamera::distributionCamera(int c_n) : Camera(c_n){init();}//カメラ番号設定．画像なら-1を入れる
@@ -19,7 +19,7 @@ distributionCamera::distributionCamera(int c_n,int c_x,int c_y,int r_r){centerx 
 void distributionCamera::init(){centerx = 580;centery = 500;ranger = 370;}//コンストラクタで指定しない場合に呼び出し　範囲を設定
 
 //フィルター．平滑処理
-void distributionCamera::filtering(objectfeature ob){
+void distributionCamera::filtering(Objectfeature ob){
 	cv::Mat bufm;
 	cvtColor(diff,editimag,CV_BGR2GRAY);//差分情報を白黒化
 	cv::threshold(editimag, editimag, 40, 255, cv::THRESH_BINARY);//二値化
@@ -62,7 +62,7 @@ void distributionCamera::filtering(objectfeature ob){
 }
 
 //散布すべき領域かどうかの判定．散布すべき座標はgopintに返ってくる
-void distributionCamera::judge(objectfeature ob, std::vector<point> &gopoint){
+void distributionCamera::judge(Objectfeature ob, std::vector<point> &gopoint){
 	double val;
 	int avsize = ob.matsize;//判定領域のマスの設定
 	point xyp;//座標バッファ
@@ -123,7 +123,7 @@ int main(int argh, char* argv[]){
 	cam = new distributionCamera(-1);//-1は画象読み込み，0以上でカメラ番号
 	std::string imname1 = "image/pizza_0_0.jpg";
 	std::string imname2 = "image/pizza_0_2.jpg";
-	objectfeature ob(21,121,20);//玉ねぎ用の平滑サイズ・判定サイズ・閾値
+	Objectfeature ob(21,121,20);//玉ねぎ用の平滑サイズ・判定サイズ・閾値
 	cam->read(imname1,imname2);//差分画像
 	cam->filtering(ob);//二値化と平滑化
 	std::vector<point>  gop;//撒くべき場所の座標
