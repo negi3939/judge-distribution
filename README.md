@@ -1,8 +1,7 @@
 # カメラ画像から散布物の分布を取得
 散布前の画像のファイル名と散布後の画像のファイル名をを入力すると，散布不足の領域の座標を返す．
-![pizza_3_2](https://user-images.githubusercontent.com/50578550/94103076-9d788380-fe6e-11ea-8f69-0ef3db9d4be7.jpg)
-![pizza_3_2_output](https://user-images.githubusercontent.com/50578550/94103390-8be3ab80-fe6f-11ea-83c4-d43cf850af7d.jpg)
-
+<img src="https://user-images.githubusercontent.com/50578550/94103076-9d788380-fe6e-11ea-8f69-0ef3db9d4be7.jpg" width="320">
+<img src="https://user-images.githubusercontent.com/50578550/94103390-8be3ab80-fe6f-11ea-83c4-d43cf850af7d.jpg" width="320">
 # class Camera
 カメラあるいは指定したファイルのread,show,writeができる．
 readする際にstring型の引数を2つ渡すと差分が与えられる．
