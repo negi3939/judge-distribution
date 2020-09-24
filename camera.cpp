@@ -8,6 +8,7 @@
 
 #include "camera.h"
 
+//カメラ0番でopen
 Camera::Camera(){
 	cap = new cv::VideoCapture(0);//camera open
 	if(!cap->isOpened()){
@@ -16,6 +17,7 @@ Camera::Camera(){
 	}
 }
 
+//カメラc_n番でopen カメラ使わない場合は負の引数
 Camera::Camera(int c_n){
 	if(c_n>=0){//負の番号を指定するとcapをnewしない
 		cap = new cv::VideoCapture(c_n);//camera open
@@ -26,11 +28,13 @@ Camera::Camera(int c_n){
 	}
 }
 
+//カメラから取り込み
 int Camera::read(){
 	return cap->read(frame);//カメラから取得
 	outpname = "imageout/camaraimage.jpg";
 }
 
+//画像取り込み
 int Camera::read(std::string &imname){
 	int ret = 1;
 	frame = cv::imread(imname,ret);//画像の読み込み
@@ -39,6 +43,7 @@ int Camera::read(std::string &imname){
 	setoutpname(imname);//出力ファイル名の設定
 }
 
+//画像差分取得用
 int Camera::read(std::string &imname1,std::string &imname2){
 	int ret = 1;
 	cv::Mat buf1,buf2;
@@ -46,12 +51,13 @@ int Camera::read(std::string &imname1,std::string &imname2){
 	buf2 = cv::imread(imname2,ret);
 	cv::resize(buf1, buf1, cv::Size(1200, 1200));//画像の大きさを統一
 	cv::resize(buf2, buf2, cv::Size(1200, 1200));//画像の大きさを統一
-	buf2.copyTo(frame);//imname2をorgとする
-	cv::absdiff(buf1,buf2,diff);//差分を取得
+	buf2.copyTo(frame);//imname2をorgとする．showでは2が表示される
+	cv::absdiff(buf1,buf2,diff);//差分をdiffに取得
 	setoutpname(imname2);//出力ファイル名の設定
 	return ret;
 }
 
+//出力するファイル名の設定
 void Camera::setoutpname(std::string &imname){
 	std::string bufst0,bufst1,bufst2;
 	bufst0 =  "imageout/";
@@ -78,12 +84,14 @@ void Camera::setoutpname(std::string &imname){
 	std::cout << outpname << std::endl;
 }
 
+//読み込み画像の表示
 void Camera::show(){
 	cv::imshow("camera",frame);//表示
 	cv::waitKey(1);//これがないと表示されない
 }
 
-int Camera::kbhit(){//キーボード割り込み入力判定
+//キーボード割り込み入力判定
+int Camera::kbhit(){
     struct termios oldt, newt;
     int ch;
     int oldf;
@@ -103,10 +111,12 @@ int Camera::kbhit(){//キーボード割り込み入力判定
     return 0;
 }
 
+//保存
 void Camera::write(){
 	cv::imwrite(outpname,frame);
 }
 
+//カメラを閉じる
 Camera::~Camera(){
 	cv::destroyAllWindows();
 }

@@ -6,30 +6,30 @@
 class objectfeature{
 	public:
 		objectfeature();
-		objectfeature(int av,int mat,double th);
-		int avsize;
-		int matsize;
-		double thrval;
+		objectfeature(int av,int mat,double th);//コンストラクタで設定
+		int avsize;//平滑化処理用の範囲
+		int matsize;//散布すべき領域のマスの大きさ
+		double thrval;//しきい値
 };
 
 typedef struct{
 	double x;
 	double y;
-} point;
+} point;//2D座標用
 
 
 class distributionCamera : public Camera{
     protected:
-		cv::Mat editimag,retimag;
-		 std::vector<point> gp;
-		int centerx,centery,ranger;
+		cv::Mat editimag,retimag;//editimagは白黒で散布すべき領域表示．retimagはカラーで認識物と散布すべき領域を表示
+		 std::vector<point> gp;//散布すべき領域の座標郡
+		int centerx,centery,ranger;//範囲を円で決めるx,y,r　コンストラクタで設定
     public:
         distributionCamera();
-        distributionCamera(int c_n);
-        distributionCamera(int c_n,int c_x,int c_y,int r_r);
-		void init();
-		void filtering(objectfeature ob);
-		void judge(objectfeature ob,std::vector<point> &gopoint);
+        distributionCamera(int c_n);//c_nはカメラ番号．カメラじゃない場合は-1を入れる
+        distributionCamera(int c_n,int c_x,int c_y,int r_r);//範囲を円で決めるx,y,r　コンストラクタで設定
+		void init();//コンストラクタで指定しない場合に呼び出し
+		void filtering(objectfeature ob);//フィルター．平滑処理
+		void judge(objectfeature ob,std::vector<point> &gopoint);//散布すべき領域かどうかの判定．散布すべき座標はgopintに返ってくる
 		void show() override;//表示
 		void write() override;//保存
 };

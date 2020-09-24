@@ -9,6 +9,7 @@
 
 #include "distributioncamera.h"
 
+//全てのファイルを判定し，保存する
 void run_judge(std::vector<std::string> imagename,objectfeature ob,distributionCamera *cam){
     std::vector<point>  gop;//撒くべき場所の座標
     for(int ii=1;ii<imagename.size();ii++){
@@ -23,6 +24,7 @@ void run_judge(std::vector<std::string> imagename,objectfeature ob,distributionC
     }
 }
 
+//特定のファイルを判定し，表示する
 void run_show(std::vector<std::string> imagename,int num,objectfeature ob,distributionCamera *cam){
     std::vector<point>  gop;//撒くべき場所の座標
 	cam->read(imagename.at(0),imagename.at(num));//差分入力
@@ -63,10 +65,11 @@ int main(int argh, char* argv[]){
 	cheese.at(1) = "image/pizza_3_1.jpg";
 	cheese.at(2) = "image/pizza_3_2.jpg";
 	cheese.at(3) = "image/pizza_3_3.jpg";
-	objectfeature obonion(21,121,20);//玉ねぎ用のサイズ
-	objectfeature obcone(21,61,20);//トウモコロシ用のサイズ
-	objectfeature obbroccoli(21,121,20);//ブロッコリー用のサイズ
-	objectfeature obcheese(21,41,20);//チーズ用のサイズ
+    
+	objectfeature obonion(21,121,20);//玉ねぎ用の平滑サイズ・判定サイズ・閾値
+	objectfeature obcone(21,61,20);//トウモコロシ用のサイズ・判定サイズ・閾値
+	objectfeature obbroccoli(21,121,20);//ブロッコリー用のサイズ・判定サイズ・閾値
+	objectfeature obcheese(21,41,20);//チーズ用のサイズ・判定サイズ・閾値
 
     int flag0 = 1,flag1 = 1,flag2 = 1,imnum;
     while(flag0){

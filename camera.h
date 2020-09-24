@@ -11,7 +11,7 @@ class Camera{
 	public:
 		Camera();//カメラ0番でopen
 		Camera(int c_n);//カメラc_n番でopen カメラ使わない場合は負の引数
-		~Camera();
+		~Camera();//カメラを閉じる
 		int read();//カメラから取得
 		int read(std::string &imname);//画像取り込み
 		int read(std::string &imname1,std::string &imname2);//画像差分取得用
