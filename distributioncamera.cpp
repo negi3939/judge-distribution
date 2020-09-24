@@ -116,3 +116,28 @@ void distributionCamera::show(){
 void distributionCamera::write(){
 	cv::imwrite(outpname,retimag);//画像の保存
 }
+
+#if defined(DISTRI_IS_MAIN)
+int main(int argh, char* argv[]){
+	distributionCamera *cam;
+	cam = new distributionCamera(-1);//-1は画象読み込み，0以上でカメラ番号
+	std::string imname1 = "image/pizza_0_0.jpg";
+	std::string imname2 = "image/pizza_0_2.jpg";
+	objectfeature ob(21,121,20);//玉ねぎ用の平滑サイズ・判定サイズ・閾値
+	cam->read(imname1,imname2);//差分画像
+	cam->filtering(ob);//二値化と平滑化
+	std::vector<point>  gop;//撒くべき場所の座標
+	cam->judge(ob,gop);//エリア内の散布度判定
+	for(int jj=0;jj<gop.size();jj++){
+		    std::cout << jj << " : " << " x: "<< gop.at(jj).x  << " y: "<< gop.at(jj).y  << std::endl;//取得した散布すべき座標の表示
+	}
+	while(1){
+		cam->show();//表示
+		if(cam->kbhit()){//キーボードを入力すると表示停止
+			break;
+		}
+	}
+	delete cam;
+	return 0;
+}
+#endif

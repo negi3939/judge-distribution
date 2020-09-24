@@ -121,7 +121,7 @@ Camera::~Camera(){
 	cv::destroyAllWindows();
 }
 
-#if 0
+#if defined(CAMERA_IS_MAIN)
 int main(int argh, char* argv[]){
 	Camera *cam;
 	cam = new Camera(-1);//-1は画象読み込み，0以上でカメラ番号

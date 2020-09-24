@@ -16,37 +16,29 @@ endif
 
 ifeq ($(TARGET),camera)
 	SOURCE_MAIN = camera.cpp
+	CXXFLAGS = -DCAMERA_IS_MAIN
 endif
 
 ifeq ($(TARGET),distrib)
 	SOURCE_MAIN = distributioncamera.cpp
 	SOURCE_SUB = camera.cpp
+	CXXFLAGS = -DDISTRI_IS_MAIN
 endif
 ifeq ($(TARGET),main)
 	SOURCE_MAIN = distributionMain.cpp 
 	SOURCE_SUB = camera.cpp distributioncamera.cpp
 endif
 
-ifdef argv
-	COMMAND = echo run;./$(SOURCE_MAIN:%.cpp=%.out) argv
-else
-	COMMAND = echo run;./$(SOURCE_MAIN:%.cpp=%.out)
-endif
-ifdef notrun
-		COMMAND = echo You got $(SOURCE_MAIN:%.cpp=%.out).
-endif
 
 PROGRAM = $(SOURCE_MAIN:%.cpp=%.out)
 SUBOBJ = $(SOURCE_SUB:%.cpp=%.o)
 
-CFLAGS = `pkg-config --cflags --libs opencv`
 LDFLAGS = `pkg-config --cflags --libs opencv` -L /usr/local/lib
 
 all: $(PROGRAM)
 
 %.out: %.o $(SUBOBJ)
 	g++ -o $@ $^ $(LDFLAGS) -w
-	#$(COMMAND)
 %.o : %.cpp
 	g++ -o $@ $< -c $(CXXFLAGS) -w
 clean:
