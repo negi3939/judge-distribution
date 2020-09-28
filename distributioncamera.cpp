@@ -22,6 +22,7 @@ void distributionCamera::init(){centerx = 580;centery = 500;ranger = 370;}//コ�
 void distributionCamera::filtering(Objectfeature ob){
 	cv::Mat bufm;
 	cvtColor(diff,editimag,CV_BGR2GRAY);//差分情報を白黒化
+	removenoize(ob);
 	cv::threshold(editimag, editimag, 40, 255, cv::THRESH_BINARY);//二値化
 	retimag = cv::Mat::zeros(editimag.rows,editimag.cols,cv::THRESH_BINARY);//黒背景
 	retimag.copyTo(bufm);//bufmも黒背景に
@@ -104,6 +105,39 @@ void distributionCamera::judge(Objectfeature ob, std::vector<point> &gopoint){
 	gopoint = gp;
 }
 
+void distributionCamera::removenoize(Objectfeature ob){
+	double val,base_col;
+	double *datin;
+	int boolf = 1;
+	cv::Scalar col(76,171,200);//BGR
+	base_col = col(0) + col(1) + col(2); 
+	for(int ii = 0; ii<frame.rows;ii++){
+		for(int jj = 0;jj<frame.cols;jj++){
+			datin = new double[frame.channels()];
+			val = 0;
+			for(int chn=0;chn<frame.channels();chn++){
+				datin[chn] = (double)frame.data[ii * frame.step + jj*frame.channels() + chn];
+				val += datin[chn];
+			}
+			if(val==0){val=1;}
+			for(int chn=0;chn<frame.channels();chn++){
+				datin[chn] = datin[chn]/val*base_col;
+				if((datin[chn]>col(chn)-8)&&(datin[chn]<col(chn)+8)){
+					boolf  = 1;		
+				}else{
+					boolf  = 0;
+				}
+			}
+			if(boolf == 0){
+				for(int chn=0;chn<frame.channels();chn++){
+					editimag.data[ii * editimag.step + jj*editimag.channels() + chn] = 0;
+				}
+			}
+			delete[] datin;
+		}
+	}
+}
+
 //表示
 void distributionCamera::show(){
 	//cv::imshow("result",editimag);//白黒で結果表示
@@ -121,8 +155,8 @@ void distributionCamera::write(){
 int main(int argh, char* argv[]){
 	distributionCamera *cam;
 	cam = new distributionCamera(-1);//-1は画象読み込み，0以上でカメラ番号
-	std::string imname1 = "image/pizza_0_0.jpg";
-	std::string imname2 = "image/pizza_0_2.jpg";
+	std::string imname1 = "image/pizza_1_0.jpg";
+	std::string imname2 = "image/pizza_1_4.jpg";
 	Objectfeature ob(21,121,20);//玉ねぎ用の平滑サイズ・判定サイズ・閾値
 	cam->read(imname1,imname2);//差分画像
 	cam->filtering(ob);//二値化と平滑化
