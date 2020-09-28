@@ -106,31 +106,33 @@ void distributionCamera::judge(Objectfeature ob, std::vector<point> &gopoint){
 }
 
 void distributionCamera::removenoize(Objectfeature ob){
-	double val,base_col;
+	double bright,base_bright;
 	double *datin;
-	int boolf = 1;
-	cv::Scalar col(76,171,200);//BGR
-	base_col = col(0) + col(1) + col(2); 
+	int boolf;
+	cv::Scalar col(65,170,197);//BGR
+	base_bright = col(0) + col(1) + col(2);
+	double colthval = 10.0d; 
 	for(int ii = 0; ii<frame.rows;ii++){
 		for(int jj = 0;jj<frame.cols;jj++){
 			datin = new double[frame.channels()];
-			val = 0;
+			bright = 0;
 			for(int chn=0;chn<frame.channels();chn++){
 				datin[chn] = (double)frame.data[ii * frame.step + jj*frame.channels() + chn];
-				val += datin[chn];
+				bright += datin[chn];	
 			}
-			if(val==0){val=1;}
 			for(int chn=0;chn<frame.channels();chn++){
-				datin[chn] = datin[chn]/val*base_col;
-				if((datin[chn]>col(chn)-8)&&(datin[chn]<col(chn)+8)){
-					boolf  = 1;		
+				datin[chn] = datin[chn]/bright*base_bright;
+				boolf = 1;
+				if((datin[chn]>col(chn)-colthval)&&(datin[chn]<col(chn)+colthval)){
+					boolf  *= 1;		
 				}else{
-					boolf  = 0;
+					boolf  *= 0;
 				}
 			}
 			if(boolf == 0){
 				for(int chn=0;chn<frame.channels();chn++){
 					editimag.data[ii * editimag.step + jj*editimag.channels() + chn] = 0;
+					//frame.data[ii * frame.step + jj*frame.channels() + chn] = 0;
 				}
 			}
 			delete[] datin;
@@ -140,7 +142,7 @@ void distributionCamera::removenoize(Objectfeature ob){
 
 //表示
 void distributionCamera::show(){
-	//cv::imshow("result",editimag);//白黒で結果表示
+	//cv::imshow("result",frame);//白黒で結果表示
 	//cv::waitKey(1);
 	cv::imshow("with image",retimag);//画像に色追加で表示
 	cv::waitKey(1);	
