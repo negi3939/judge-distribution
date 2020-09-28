@@ -10,7 +10,7 @@
 #include "distributioncamera.h"
 
 Objectfeature::Objectfeature(){}
-Objectfeature::Objectfeature(int av,int mat,double th){avsize = av;matsize = mat;thrval = th;}//コンストラクタで値を設定する
+Objectfeature::Objectfeature(int av,int mat,double th,cv::Scalar co,double coth){avsize = av;matsize = mat;thrval = th;col = co;colthval = coth;}//コンストラクタで値を設定する
 
 distributionCamera::distributionCamera() : Camera(){init();}
 distributionCamera::distributionCamera(int c_n) : Camera(c_n){init();}//カメラ番号設定．画像なら-1を入れる
@@ -103,34 +103,32 @@ void distributionCamera::judge(Objectfeature ob, std::vector<point> &gopoint){
 	gopoint = gp;
 }
 
+//色が合わないものを除去
 void distributionCamera::removenoize(Objectfeature ob){
 	double bright,base_bright;
 	double *datin;
-	int boolf;
-	cv::Scalar col(65,170,197);//BGR
-	base_bright = col(0) + col(1) + col(2);
-	double colthval = 10.0d; 
+	int boolf;//色の一致の真偽
+	base_bright = ob.col(0) + ob.col(1) + ob.col(2); //明るさ計算
 	for(int ii = 0; ii<frame.rows;ii++){
 		for(int jj = 0;jj<frame.cols;jj++){
 			datin = new double[frame.channels()];
 			bright = 0;
 			for(int chn=0;chn<frame.channels();chn++){
 				datin[chn] = (double)frame.data[ii * frame.step + jj*frame.channels() + chn];
-				bright += datin[chn];	
+				bright += datin[chn];//明るさ計算	
 			}
 			for(int chn=0;chn<frame.channels();chn++){
-				datin[chn] = datin[chn]/bright*base_bright;
+				datin[chn] = datin[chn]/bright*base_bright;//明るさを揃える
 				boolf = 1;
-				if((datin[chn]>col(chn)-colthval)&&(datin[chn]<col(chn)+colthval)){
+				if((datin[chn]>ob.col(chn)-ob.colthval)&&(datin[chn]<ob.col(chn)+ob.colthval)){//色の閾値以内か判定
 					boolf  *= 1;		
 				}else{
-					boolf  *= 0;
+					boolf  *= 0;//色があっていないとみなす
 				}
 			}
 			if(boolf == 0){
 				for(int chn=0;chn<frame.channels();chn++){
-					editimag.data[ii * editimag.step + jj*editimag.channels() + chn] = 0;
-					//frame.data[ii * frame.step + jj*frame.channels() + chn] = 0;
+					editimag.data[ii * editimag.step + jj*editimag.channels() + chn] = 0;//色が合わなかった部分は除外
 				}
 			}
 			delete[] datin;
@@ -140,7 +138,7 @@ void distributionCamera::removenoize(Objectfeature ob){
 
 //表示
 void distributionCamera::show(){
-	cv::imshow("diff",diff);//白黒で結果表示
+	cv::imshow("org",frame);//白黒で結果表示
 	cv::waitKey(1);
 	cv::imshow("with image",retimag);//画像に色追加で表示
 	cv::waitKey(1);	
@@ -156,9 +154,10 @@ int main(int argh, char* argv[]){
 	distributionCamera *cam;
 	cam = new distributionCamera(-1);//-1は画象読み込み，0以上でカメラ番号
 	std::string imname1 = "image/pizza_1_0.jpg";
-	std::string imname2 = "image/pizza_1_4.jpg";
-	Objectfeature ob(21,121,20);//玉ねぎ用の平滑サイズ・判定サイズ・閾値
-	cam->read(imname1,imname2,1);//差分画像
+	std::string imname2 = "image/pizza_1_7.jpg";
+	cv::Scalar colcone(65,170,197);//トウモロコシの色
+	Objectfeature ob(21,61,20,colcone,10);//玉ねぎ用の平滑サイズ・判定サイズ・閾値
+	cam->read(imname1,imname2,1);//差分画像//01で陰対策するか否か
 	cam->filtering(ob);//二値化と平滑化
 	std::vector<point>  gop;//撒くべき場所の座標
 	cam->judge(ob,gop);//エリア内の散布度判定

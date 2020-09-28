@@ -6,10 +6,12 @@
 class Objectfeature{
 	public:
 		Objectfeature();
-		Objectfeature(int av,int mat,double th);//コンストラクタで設定
+		Objectfeature(int av,int mat,double th,cv::Scalar co,double coth);//コンストラクタで設定
 		int avsize;//平滑化処理用の範囲
 		int matsize;//散布すべき領域のマスの大きさ
-		double thrval;//しきい値
+		double thrval;//画像差分のしきい値
+		double colthval;//基準食との色のしきい値
+		cv::Scalar col;//基準の色
 };
 
 typedef struct{
@@ -30,7 +32,7 @@ class distributionCamera : public Camera{
 		void init();//コンストラクタで指定しない場合に呼び出し
 		void filtering(Objectfeature ob);//フィルター．平滑処理
 		void judge(Objectfeature ob,std::vector<point> &gopoint);//散布すべき領域かどうかの判定．散布すべき座標はgopintに返ってくる
-		void removenoize(Objectfeature ob);
+		void removenoize(Objectfeature ob);//色が合わないものを除去
 		void show() override;//表示
 		void write() override;//保存
 };

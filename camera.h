@@ -14,9 +14,8 @@ class Camera{
 		~Camera();//カメラを閉じる
 		int read();//カメラから取得
 		int read(std::string &imname);//画像取り込み
-		//int read(std::string &imname1,std::string &imname2);//画像差分取得用
-		int read(std::string &imname1,std::string &imname2,int a1);//画像差分取得用（陰対策）
-		int unification_bright(cv::Mat &mat);
+		int read(std::string &imname1,std::string &imname2,int a1);//画像差分取得用（a1=1で陰対策）
+		int unification_bright(cv::Mat &mat);//明るさを全てそろえる
 		void setoutpname(std::string &imname);//出力するファイル名の設定
 		virtual void show();//表示
 		virtual void write();//保存

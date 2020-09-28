@@ -9,7 +9,8 @@
 ifdef target
 	TARGET=$(target)
 else
-	TARGET=distrib
+	TARGET=main
+	#distrib
 	#main
 	#camera
 endif

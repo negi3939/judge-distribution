@@ -43,21 +43,7 @@ int Camera::read(std::string &imname){
 	setoutpname(imname);//出力ファイル名の設定
 }
 
-//画像差分取得用
-/*
-int Camera::read(std::string &imname1,std::string &imname2){
-	int ret = 1;
-	cv::Mat buf1,buf2;
-	buf1 = cv::imread(imname1,ret);
-	buf2 = cv::imread(imname2,ret);
-	cv::resize(buf1, buf1, cv::Size(1200, 1200));//画像の大きさを統一
-	cv::resize(buf2, buf2, cv::Size(1200, 1200));//画像の大きさを統一
-	buf2.copyTo(frame);//imname2をorgとする．showでは2が表示される
-	cv::absdiff(buf1,buf2,diff);//差分をdiffに取得
-	setoutpname(imname2);//出力ファイル名の設定
-	return ret;
-}
-*/
+//画像差分取得用（a1=1で陰対策）
 int Camera::read(std::string &imname1,std::string &imname2,int a1=0){
 	int ret = 1;
 	cv::Mat buf1,buf2;
@@ -66,15 +52,16 @@ int Camera::read(std::string &imname1,std::string &imname2,int a1=0){
 	cv::resize(buf1, buf1, cv::Size(1200, 1200));//画像の大きさを統一
 	cv::resize(buf2, buf2, cv::Size(1200, 1200));//画像の大きさを統一
 	buf2.copyTo(frame);//imname2をorgとする．showでは2が表示される
-	if(a1==1){
-		unification_bright(buf1);
-		unification_bright(buf2);
+	if(a1){
+		unification_bright(buf1);//明るさを全てそろえる
+		unification_bright(buf2);//明るさを全てそろえる
 	}
 	cv::absdiff(buf1,buf2,diff);//差分をdiffに取得
 	setoutpname(imname2);//出力ファイル名の設定
 	return ret;
 }
 
+//明るさを全てそろえる
 int Camera::unification_bright(cv::Mat &mat){
 	double bright;
 	double *datin;
