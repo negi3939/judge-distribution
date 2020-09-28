@@ -91,9 +91,7 @@ void distributionCamera::judge(Objectfeature ob, std::vector<point> &gopoint){
 					if(((iii-centery)*(iii-centery)+(jjj-centerx)*(jjj-centerx))<ranger*ranger){
 						editimag.data[iii * editimag.step + jjj] = (int)val;
 						if(val>=255){
-							retimag.data[iii * retimag.step + jjj*retimag.channels() + 0] = 0;
 							retimag.data[iii * retimag.step + jjj*retimag.channels() + 1] = val;//散布すべき領域を緑色に
-							retimag.data[iii * retimag.step + jjj*retimag.channels() + 2] = 0;
 						}
 					}else{
 						editimag.data[iii * editimag.step + jjj] = 0;
@@ -142,8 +140,8 @@ void distributionCamera::removenoize(Objectfeature ob){
 
 //表示
 void distributionCamera::show(){
-	//cv::imshow("result",frame);//白黒で結果表示
-	//cv::waitKey(1);
+	cv::imshow("diff",diff);//白黒で結果表示
+	cv::waitKey(1);
 	cv::imshow("with image",retimag);//画像に色追加で表示
 	cv::waitKey(1);	
 }
@@ -160,7 +158,7 @@ int main(int argh, char* argv[]){
 	std::string imname1 = "image/pizza_1_0.jpg";
 	std::string imname2 = "image/pizza_1_4.jpg";
 	Objectfeature ob(21,121,20);//玉ねぎ用の平滑サイズ・判定サイズ・閾値
-	cam->read(imname1,imname2);//差分画像
+	cam->read(imname1,imname2,1);//差分画像
 	cam->filtering(ob);//二値化と平滑化
 	std::vector<point>  gop;//撒くべき場所の座標
 	cam->judge(ob,gop);//エリア内の散布度判定

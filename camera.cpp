@@ -44,6 +44,7 @@ int Camera::read(std::string &imname){
 }
 
 //画像差分取得用
+/*
 int Camera::read(std::string &imname1,std::string &imname2){
 	int ret = 1;
 	cv::Mat buf1,buf2;
@@ -55,6 +56,44 @@ int Camera::read(std::string &imname1,std::string &imname2){
 	cv::absdiff(buf1,buf2,diff);//差分をdiffに取得
 	setoutpname(imname2);//出力ファイル名の設定
 	return ret;
+}
+*/
+int Camera::read(std::string &imname1,std::string &imname2,int a1=0){
+	int ret = 1;
+	cv::Mat buf1,buf2;
+	buf1 = cv::imread(imname1,ret);
+	buf2 = cv::imread(imname2,ret);
+	cv::resize(buf1, buf1, cv::Size(1200, 1200));//画像の大きさを統一
+	cv::resize(buf2, buf2, cv::Size(1200, 1200));//画像の大きさを統一
+	buf2.copyTo(frame);//imname2をorgとする．showでは2が表示される
+	if(a1==1){
+		unification_bright(buf1);
+		unification_bright(buf2);
+	}
+	cv::absdiff(buf1,buf2,diff);//差分をdiffに取得
+	setoutpname(imname2);//出力ファイル名の設定
+	return ret;
+}
+
+int Camera::unification_bright(cv::Mat &mat){
+	double bright;
+	double *datin;
+	double base_bright = 255.0d*2.0d;
+	for(int ii = 0; ii<mat.rows;ii++){
+		for(int jj = 0;jj<mat.cols;jj++){
+			datin = new double[mat.channels()];
+			bright = 0;
+			for(int chn=0;chn<mat.channels();chn++){
+				datin[chn] = (double)mat.data[ii * mat.step + jj*mat.channels() + chn];
+				bright += datin[chn];	
+			}
+			for(int chn=0;chn<mat.channels();chn++){
+				datin[chn] = datin[chn]/bright*base_bright;
+				mat.data[ii * mat.step + jj*mat.channels() + chn] = (int)datin[chn];
+			}
+			delete[] datin;
+		}
+	}
 }
 
 //出力するファイル名の設定
@@ -87,6 +126,7 @@ void Camera::setoutpname(std::string &imname){
 //読み込み画像の表示
 void Camera::show(){
 	cv::imshow("camera",frame);//表示
+	//cv::imshow("camera",diff);
 	cv::waitKey(1);//これがないと表示されない
 }
 
@@ -125,9 +165,9 @@ Camera::~Camera(){
 int main(int argh, char* argv[]){
 	Camera *cam;
 	cam = new Camera(-1);//-1は画象読み込み，0以上でカメラ番号
-	std::string imname1 = "image/pizza_0_0.jpg";
-	std::string imname2 = "image/pizza_0_2.jpg";
-	cam->read(imname1,imname2);//差分画像
+	std::string imname1 = "image/pizza_1_0.jpg";
+	std::string imname2 = "image/pizza_1_4.jpg";
+	cam->read(imname1,imname2,1);//差分画像
 	while(1){
 		cam->show();//表示
 		if(cam->kbhit()){//キーボードを入力すると表示停止

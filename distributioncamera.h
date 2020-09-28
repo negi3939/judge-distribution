@@ -10,7 +10,6 @@ class Objectfeature{
 		int avsize;//平滑化処理用の範囲
 		int matsize;//散布すべき領域のマスの大きさ
 		double thrval;//しきい値
-		cv::Scalar col;//対象物の色 B,G,R
 };
 
 typedef struct{
