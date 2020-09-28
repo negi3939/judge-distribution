@@ -84,12 +84,12 @@ int main(int argh, char* argv[]){
     cv::Scalar colonion(175,200,216);//玉ねぎの色
     cv::Scalar colcone(65,170,197);//トウモロコシの色
     cv::Scalar colbroccoli(71,160,147);//ブロッコリーの色
-    cv::Scalar colcheese(121,170,176);//チーズの色
+    cv::Scalar colcheese(161,220,229);//チーズの色
 
 	Objectfeature obonion(21,121,20,colonion,40);//玉ねぎ用の平滑サイズ・判定サイズ・閾値・色・色の閾値
 	Objectfeature obcone(21,61,20,colcone,10);//トウモコロシ用のサイズ・判定サイズ・閾値・色・色の閾値
 	Objectfeature obbroccoli(21,121,20,colbroccoli,40);//ブロッコリー用のサイズ・判定サイズ・閾値・色・色の閾値
-	Objectfeature obcheese(21,41,20,colcheese,30);//チーズ用のサイズ・判定サイズ・閾値・色・色の閾値
+	Objectfeature obcheese(21,41,20,colcheese,20);//チーズ用のサイズ・判定サイズ・閾値・色・色の閾値
 
     int flag0 = 1,flag1 = 1,flag2 = 1,imnum;
     while(flag0){
